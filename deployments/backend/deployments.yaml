@@ -3,13 +3,13 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    app: backend
-  name: backend
+    app: testApp
+  name: backend-django
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backend
+      app: backend-django
   template:
     metadata:
       creationTimestamp: null
@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - image: dockersmnt/django_api2:latest
-        name: todolist
+        name: testApp
         ports:
           - containerPort: 8000
         volumeMounts:
