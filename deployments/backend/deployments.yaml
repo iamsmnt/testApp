@@ -22,8 +22,8 @@ spec:
         ports:
           - containerPort: 8000
         volumeMounts:
-          - mountPath: /var/log/
-            name: backend-django
+          - mountPath: /backend
+            name: pv0001
             type: directory
         command: ["/bin/sh", "-c"]
         args:
@@ -32,7 +32,4 @@ spec:
             python manage.py makemigrations bucket;
             python manage.py migrate;
             gunicorn --bind 0.0.0.0:8000 --workers 3 todolist.wsgi:application
-      volumes:
-        - name: backend-django
-          hostPath:
-            path: /var/log/
+      
