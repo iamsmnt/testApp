@@ -32,4 +32,7 @@ spec:
             python manage.py makemigrations bucket;
             python manage.py migrate;
             gunicorn --bind 0.0.0.0:8000 --workers 3 todolist.wsgi:application
-      
+      volumes:
+        - name: backend
+          hostPath:
+            path: /backend
