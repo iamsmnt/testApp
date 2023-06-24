@@ -3,6 +3,7 @@ kind: PersistentVolume
 metadata:
   name: pv0001
 spec:
+  storageClassName: manual
   capacity:
    storage: 2Gi
   volumeMode: Filesystem
