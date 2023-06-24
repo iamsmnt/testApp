@@ -23,7 +23,7 @@ spec:
           - containerPort: 8000
         volumeMounts:
           - mountPath: /backend
-            name: pv0001
+            name: "pv0001"
         command: ["/bin/sh", "-c"]
         args:
           - apt-get update;
