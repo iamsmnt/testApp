@@ -1,0 +1,18 @@
+**********************************************************
+*  DOCKER IMAGE BUILDING PROCESS
+**********************************************************
+
+##DOCKER BUILD IMAGE
+docker build --tag django_api2:latest . 
+
+##DOCKER SHOW IMAGE
+docker image ls
+
+##docker login to repo
+docker login
+
+##add tags
+docker tag django_api2:latest dockersmnt/django_api2:latest
+
+##push to the repo
+docker pushs
