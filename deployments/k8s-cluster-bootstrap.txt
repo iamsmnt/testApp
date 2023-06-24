@@ -1,0 +1,120 @@
++++++++++++++++++Install Conatainerd on ubuntu vm+++++++++++++++++
+
+sudo apt-get update
+
+sudo apt-get install containerd -y
+
++++++++++++++++++Configure containerd and start the service with the commands:+++++++++++++
+
+
+sudo mkdir -p /etc/containerd
+
+sudo containerd config default > /etc/containerd/config.toml
+
+Next open /etc/containerd/config.toml and find the following line:
+
+SystemdCgroup = false
+
+Change the value to true:
+
+SystemdCgroup = true
+
+Above modification is required to enable full support for systemd cgroup management. Without this option, Kubernetes system containers will periodically restart themselves.
+
+Restart containerd to apply your changes:
+
+sudo service containerd restart
+
+sudo service containerd status         //Make sure the containerd service is running//
+
+
+++++++++++++++++++++Installing Kubeadm, Kubectl, and Kubelet+++++++++++++++++++++++++++++
+
+
+1. Update the apt package index and install packages needed to use the Kubernetes apt repository:
+	sudo apt-get update
+	sudo apt-get install -y apt-transport-https ca-certificates curl
+
+2. Download the Google Cloud public signing key:
+
+	curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+
+3. Add the Kubernetes apt repository:
+ 	
+	echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+4. Update apt package index, install kubelet, kubeadm and kubectl, and pin their version:
+
+	sudo apt-get update
+	sudo apt-get install -y kubelet kubeadm kubectl
+	sudo apt-mark hold kubelet kubeadm kubectl
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Disabling Swap
+Kubernetes does not work when swap is enabled. You must turn swap off before you create your cluster. Otherwise you’ll find the provisioning process hangs while waiting for Kubelet to start.
+
+Run this command to disable swap:
+
+$ sudo swapoff -a
+Next edit your /etc/fstab file and disable any swap mounts:
+******************************************************************************************************
+UUID=ec6efe91-5d34-4c80-b59c-cafe89cc6cb2 /               ext4    errors=remount-ro 0       1
+/swapfile                                 none            swap    sw              0       0
+*******************************************************************************************************
+This file shows a mount with the swap type as the last line. It should be removed or commented out so that swap remains disabled after system reboots.
+
+
+Loading the br_netfilter Module
+__________________________________________________________________________________________________________
+The br_netfilter kernel module is required to enable iptables to see bridged traffic. Kubeadm won’t let you create your cluster when this module’s missing.
+
+1. You can enable it with the following command:
+	sudo modprobe br_netfilter
+2. Make it persist after a reboot by including it in your system’s modules list:
+	echo br_netfilter | sudo tee /etc/modules-load.d/kubernetes.conf
+
+
+Run the command to enable ip_forward
+sudo sysctl -w net.ipv4.ip_forward=1
+
+_______________________________________Create Cluster_____________________________________________________
+You’re ready to create your Kubernetes cluster. Run kubeadm init on the machine you want to host your control plane:
+
+	 sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+
+
+You will get below message on successfull creation of Master/control-plane node along with this you will also get a 
+following output based on your master node IP to join the worker node.
+
+
+
+ ##########SAMPLE OUTPUT#############################################
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 172.31.27.58:6443 --token 4m0sf9.8rr4rzrl2ibdx4i4 \
+        --discovery-token-ca-cert-hash sha256:392191315f46f7ca980a5cd77fa0535f35e4db8ce38a30d406197dbac51bc19d
+
+###################################################################################################################
+
+
+To create the worker node repeat all the above steps before "Create Cluster"
+Do not run "kubeadm init"    command on worker node.
+
+Once all the components are installed on the worker node, run kubeadm join command on the worker node to join the node to the cluster.
