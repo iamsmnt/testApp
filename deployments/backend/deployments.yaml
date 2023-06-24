@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: backend
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: backend-django
+    spec:
+      containers:
+      - image: dockersmnt/django_api2:latest
+        name: todolist
+        ports:
+          - containerPort: 8000
+        volumeMounts:
+          - mountPath: /var/log/
+            name: backend-django
+        command: ["/bin/sh", "-c"]
+        args:
+          - apt-get update;
+            apt-get -y install vim;
+            python manage.py makemigrations bucket;
+            python manage.py migrate;
+            gunicorn --bind 0.0.0.0:8000 --workers 3 todolist.wsgi:application
+      volumes:
+        - name: backend
+          hostPath:
+            path: /var/log/

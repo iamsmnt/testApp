@@ -15,4 +15,4 @@ docker login
 docker tag django_api2:latest dockersmnt/django_api2:latest
 
 ##push to the repo
-docker pushs
+docker push
