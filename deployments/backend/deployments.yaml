@@ -24,7 +24,7 @@ spec:
         volumeMounts:
           - mountPath: /backend
             name: pv0001
-            type: directory
+            type: HostPath
         command: ["/bin/sh", "-c"]
         args:
           - apt-get update;
